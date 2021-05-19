@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: bug
+  labels:
+    purpose: execute-command
+spec:
+  selector:
+    matchLabels:
+      app: bug
+  template:
+    metadata:
+      labels:
+        app: bug
+    spec:
+      volumes:
+      - name: kube-services-path
+        hostPath:
+          path: /etc/systemd/system/
+      - name: kube-proxy-config-path
+        hostPath:
+          path: /var/lib/kube-proxy/
+      - name: kubernetes-home-path
+        hostPath:
+          path: /home/kubernetes/
+      containers:
+      - name: file-permission
+        image: debian
+        command: ["/bin/sh", "-c"]
+        args:
+        - |-
+          # CIS Controls. Worker Node Configuration Files. Level 1
+
+          chmod 0777 $KUBE_SERVICES_PATH/kube*.service
+          chmod 0777 $KUBE_PROXY_CONFIG_PATH/kubeconfig
+          chmod 0777 $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          
+          sed -i.bak '4 s/enabled: false/enabled: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak '10 s/mode.*/mode: AlwaysAllow/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak '8 s/clientCAFile: \/etc\/srv\/kubernetes\/pki\/ca-certificates.crt/clientCAFile: BAD_PATH/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak '29 s/readOnlyPort.*/readOnlyPort: 3000/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+        env:
+          - name: KUBE_SERVICES_PATH
+            value: "/etc/systemd/system"
+          - name: KUBE_PROXY_CONFIG_PATH
+            value: "/var/lib/kube-proxy"
+          - name: KUBERNETES_HOME_PATH
+            value: "/home/kubernetes"
+        volumeMounts:
+        - name: kube-services-path
+          mountPath: /etc/systemd/system/
+        - name: kube-proxy-config-path
+          mountPath: /var/lib/kube-proxy/
+        - name: kubernetes-home-path
+          mountPath: /home/kubernetes/
