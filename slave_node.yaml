@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: k8s-hardener
+  labels:
+    purpose: execute-command
+spec:
+  selector:
+    matchLabels:
+      app: k8s-hardener
+  template:
+    metadata:
+      labels:
+        app: k8s-hardener
+    spec:
+      volumes:
+      - name: kube-services-path
+        hostPath:
+          path: /etc/systemd/system/
+      - name: kube-proxy-config-path
+        hostPath:
+          path: /var/lib/kube-proxy/
+      - name: kubernetes-home-path
+        hostPath:
+          path: /home/kubernetes/
+      containers:
+      - name: file-permission
+        image: debian
+        command: ["sh", "-c"]
+        args:
+        - |-
+          # CIS Controls. Worker Node Configuration Files. Level 1
+
+
+            # Change file permissions to 644, Uid:root and Gid:root in kube service files
+
+              for i in $(ls -- $KUBE_SERVICES_PATH/kube*.service | wc -l)
+              do
+                stat --printf='%a\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+                  awk '{if ($1 != 644) print $2}' | \
+                  xargs -I {} chmod 644 $2 {}
+                stat --printf='%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+                  awk '{if (($1 != "root") || ($2 != "root")) print $3}' | \
+                  xargs -I {} chown root:root $3 {}
+              done
+        env:
+          - name: KUBE_SERVICES_PATH
+            value: "/etc/systemd/system"
+          - name: KUBE_PROXY_CONFIG_PATH
+            value: "/var/lib/kube-proxy"
+          - name: KUBERNETES_HOME_PATH
+            value: "/home/kubernetes"
+        volumeMounts:
+        - name: kube-services-path
+          mountPath: /etc/systemd/system/
+        - name: kube-proxy-config-path
+          mountPath: /var/lib/kube-proxy/
+        - name: kubernetes-home-path
+          mountPath: /home/kubernetes/
