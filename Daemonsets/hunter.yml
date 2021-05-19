@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hunter
+  labels:
+    purpose: execute-command
+spec:
+  selector:
+    matchLabels:
+      app: hunter
+  template:
+    metadata:
+      labels:
+        app: hunter
+    spec:
+      volumes:
+      - name: kube-services-path
+        hostPath:
+          path: /etc/systemd/system/
+      - name: kube-proxy-config-path
+        hostPath:
+          path: /var/lib/kube-proxy/
+      - name: kubernetes-home-path
+        hostPath:
+          path: /home/kubernetes/
+      containers:
+      - name: file-permission
+        image: debian
+        command: ["/bin/sh", "-c"]
+        args:
+        - |-
+          # CIS Controls. Worker Node Configuration Files. Level 1
+
+          echo "#################################################################"
+          echo "# Permissions in kube*.service files                            #"
+          echo "#################################################################"
+
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+            awk '{if ($1 == 644) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
+            xargs -I {} echo "### Correct access in $KUBE_SERVICES_PATH/kube*.service files is 644. Current score is -> " {}
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
+            xargs -I {} echo "### Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is root:root. Current score is -> " {}
+          
+          echo
+          echo "#################################################################"
+          echo "# Permissions in kubeconfig file                                #"
+          echo "#################################################################"
+          
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
+            awk '{if ($1 == 644) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
+            xargs -I {} echo "### Correct access in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is 644. Current score is -> " {}
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
+            xargs -I {} echo "### Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is root:root. Current score is -> " {}
+          
+          echo
+          echo "#################################################################"
+          echo "# Permissions in kubelet-config.yaml file                       #"
+          echo "#################################################################"
+          
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
+            awk '{if ($1 == 600) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
+            xargs -I {} echo "### Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is 600. Current score is -> " {}
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
+            xargs -I {} echo "### Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is root:root. Current score is -> " {}
+          
+          echo
+          echo "#################################################################"
+          echo "# Settings in kubelet-config.yaml file                          #"
+          echo "#################################################################"
+          
+          awk 'NR==4 {if ($2 == "false") \
+            print "### Correct setting for --anonymous-auth must be false. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --anonymous-auth must be false. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          awk 'NR==10 {if ($2 == "Webhook") \
+            print "### Correct setting for --authorization-mode must be Webhook. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --authorization-mode must be Webhook. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          awk 'NR==8 {if ($2 == "/etc/srv/kubernetes/pki/ca-certificates.crt") \
+            print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          awk 'NR==29 {if ($2 == 0) \
+            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[92m" $2 "\033[37m"; else \
+            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[91m" $2 "\033[37m"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+        env:
+          - name: KUBE_SERVICES_PATH
+            value: "/etc/systemd/system"
+          - name: KUBE_PROXY_CONFIG_PATH
+            value: "/var/lib/kube-proxy"
+          - name: KUBERNETES_HOME_PATH
+            value: "/home/kubernetes"
+        volumeMounts:
+        - name: kube-services-path
+          mountPath: /etc/systemd/system/
+        - name: kube-proxy-config-path
+          mountPath: /var/lib/kube-proxy/
+        - name: kubernetes-home-path
+          mountPath: /home/kubernetes/
