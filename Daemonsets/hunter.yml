@@ -37,10 +37,10 @@ spec:
 
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
             awk '{if ($1 == 644) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
-            xargs -I {} echo "### Correct access in $KUBE_SERVICES_PATH/kube*.service files is 644. Current score is -> " {}
+            xargs -I {} echo "### Correct access in $KUBE_SERVICES_PATH/kube*.service files is << 644 >>. Current score is -> " {}
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
             awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
-            xargs -I {} echo "### Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is root:root. Current score is -> " {}
+            xargs -I {} echo "### Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is << root:root >>. Current score is -> " {}
           
           echo
           echo "#################################################################"
@@ -49,10 +49,10 @@ spec:
           
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
             awk '{if ($1 == 644) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
-            xargs -I {} echo "### Correct access in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is 644. Current score is -> " {}
+            xargs -I {} echo "### Correct access in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is << 644 >>. Current score is -> " {}
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
             awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
-            xargs -I {} echo "### Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is root:root. Current score is -> " {}
+            xargs -I {} echo "### Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is << root:root >>. Current score is -> " {}
           
           echo
           echo "#################################################################"
@@ -61,10 +61,10 @@ spec:
           
           stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
             awk '{if ($1 == 600) print "\033[32m" $1 "\033[37m"; else print "\033[31m" $1 "\033[37m";}' | \
-            xargs -I {} echo "### Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is 600. Current score is -> " {}
+            xargs -I {} echo "### Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is << 600 >>. Current score is -> " {}
           stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
             awk '{if (($2 == "root") && ($3 == "root")) print "\033[32m" $2 ":" $3 "\033[37m"; else print "\033[31m" $2 ":" $3 "\033[37m";}' | \
-            xargs -I {} echo "### Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is root:root. Current score is -> " {}
+            xargs -I {} echo "### Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is << root:root >>. Current score is -> " {}
           
           echo
           echo "#################################################################"
@@ -72,31 +72,42 @@ spec:
           echo "#################################################################"
           
           awk 'NR==4 {if ($2 == "false") \
-            print "### Correct setting for --anonymous-auth must be false. Current score is -> " "\033[32m" $2 "\033[37m"; else \
-            print "### Correct setting for --anonymous-auth must be false. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            print "### Correct setting for --anonymous-auth must be << false >>. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --anonymous-auth must be << false >>. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
           awk 'NR==10 {if ($2 == "Webhook") \
-            print "### Correct setting for --authorization-mode must be Webhook. Current score is -> " "\033[32m" $2 "\033[37m"; else \
-            print "### Correct setting for --authorization-mode must be Webhook. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            print "### Correct setting for --authorization-mode must be << Webhook >>. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --authorization-mode must be << Webhook >>. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
           awk 'NR==8 {if ($2 == "/etc/srv/kubernetes/pki/ca-certificates.crt") \
-            print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[32m" $2 "\033[37m"; else \
-            print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            print "### Correct setting for --client-ca-file must be << /etc/srv/kubernetes/pki/ca-certificates.crt >>. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --client-ca-file must be << /etc/srv/kubernetes/pki/ca-certificates.crt >>. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
           awk 'NR==30 {if ($2 == 0) \
-            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[32m" $2 "\033[37m"; else \
-            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[31m" $2 "\033[37m"}' \
+            print "### Correct setting for --read-only-port must be << 0 >>. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --read-only-port must be << 0 >>. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
           
           var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
-                echo "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[31mMissing Parameter\033[m";
+                echo -e "### Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >>. Current score is -> \033[31mMissing Parameter\033[m";
               elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
-                echo "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[31mFAIL\033[m";
+                echo -e "### Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >>. Current score is -> \033[31mFAIL\033[m";
               else
-                echo -e "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[32mPASS\033[m";
+                echo -e "### Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >>. Current score is -> \033[32mPASS\033[m";
               fi
+          unset var
+          var=$(grep protectKernelDefaults /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo -e "### Correct setting for protectKernelDefaults must be << true >>. Current score is -> \033[31mMissing Parameter\033[m";
+              elif [ "$var" != "protectKernelDefaults: true" ]; then
+                echo -e "### Correct setting for protectKernelDefaults must be << true >>. Current score is -> \033[31mFAIL\033[m";
+              else
+                echo -e "### Correct setting for protectKernelDefaults must be << true >>. Current score is -> \033[32mPASS\033[m";
+              fi
+          unset var
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"

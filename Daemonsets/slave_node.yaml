@@ -93,6 +93,16 @@ spec:
                   sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 1/' '/home/kubernetes/kubelet-config.yaml';
                 fi
               unset var
+
+              # protectKernelDefaults: to true
+              var=$(grep protectKernelDefaults /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak '$a protectKernelDefaults: true' '/home/kubernetes/kubelet-config.yaml';
+                elif [ "$var" != "protectKernelDefaults: true" ]; then
+                  sed -i.bak 's/protectKernelDefaults.*/protectKernelDefaults: true/' '/home/kubernetes/kubelet-config.yaml';
+                fi
+              unset var
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
