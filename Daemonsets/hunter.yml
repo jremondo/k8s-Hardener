@@ -83,10 +83,20 @@ spec:
             print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[32m" $2 "\033[37m"; else \
             print "### Correct setting for --client-ca-file must be /etc/srv/kubernetes/pki/ca-certificates.crt. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
-          awk 'NR==29 {if ($2 == 0) \
-            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[92m" $2 "\033[37m"; else \
-            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[91m" $2 "\033[37m"}' \
+          awk 'NR==30 {if ($2 == 0) \
+            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[32m" $2 "\033[37m"; else \
+            print "### Correct setting for --read-only-port must be 0. Current score is -> " "\033[31m" $2 "\033[37m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          
+          var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[31mMissing Parameter\033[m";
+              elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
+                echo "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[31mFAIL\033[m";
+              else
+                echo -e "### Correct setting for streamingConnectionIdleTimeout must be value other than 0. Current score is -> \033[32mPASS\033[m";
+              fi
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
