@@ -40,6 +40,7 @@ spec:
           sed -i.bak '8 s/clientCAFile: \/etc\/srv\/kubernetes\/pki\/ca-certificates.crt/clientCAFile: BAD_PATH/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 3000/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 0/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak 's/protectKernelDefaults.*/protectKernelDefaults: false/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
