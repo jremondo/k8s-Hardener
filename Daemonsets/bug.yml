@@ -41,6 +41,8 @@ spec:
           sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 3000/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 0/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak 's/protectKernelDefaults.*/protectKernelDefaults: false/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak 's/makeIPTablesUtilChains.*/makeIPTablesUtilChains: false/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak '$a hostnameOverride: 0.0.0.0' $KUBERNETES_HOME_PATH/kubelet-config.yaml
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"

@@ -67,30 +67,30 @@ spec:
               # autentication: anonymous: to false
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==4 {if ($2 == "true") print $2}' | \
-                xargs -I -exec sed -i.bak '4 s/enabled: true/enabled: false/' '/home/kubernetes/kubelet-config.yaml'
+                xargs -I -exec sed -i.bak '4 s/enabled: true/enabled: false/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
               
               # authorization: mode: to Webhook
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==10 {if ($2 != "Webhook") print $2}' | \
-                xargs -I -exec sed -i.bak '10 s/mode.*/mode: Webhook/' '/home/kubernetes/kubelet-config.yaml'
+                xargs -I -exec sed -i.bak '10 s/mode.*/mode: Webhook/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
               
               # authentication: x509: clientCAFile: to correct path
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==8 {if ($2 != "/etc/srv/kubernetes/pki/ca-certificates.crt") print $2}' | \
-                xargs -I -exec sed -i.bak '8 s/clientCAFile.*/clientCAFile: \/etc\/srv\/kubernetes\/pki\/ca-certificates.crt/' '/home/kubernetes/kubelet-config.yaml'
+                xargs -I -exec sed -i.bak '8 s/clientCAFile.*/clientCAFile: \/etc\/srv\/kubernetes\/pki\/ca-certificates.crt/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
               
               # readOnlyPort: to 0
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==30 {if ($2 != 0) print $2}' | \
-                xargs -I -exec sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 0/' '/home/kubernetes/kubelet-config.yaml'
+                xargs -I -exec sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 0/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
               
               # streamingConnectionIdleTimeout: to a value other than 0
               var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
-                  sed -i.bak '$a streamingConnectionIdleTimeout: 1' '/home/kubernetes/kubelet-config.yaml';
+                  sed -i.bak '$a streamingConnectionIdleTimeout: 1' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
-                  sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 1/' '/home/kubernetes/kubelet-config.yaml';
+                  sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 1/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
               unset var
 
@@ -98,11 +98,31 @@ spec:
               var=$(grep protectKernelDefaults /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
-                  sed -i.bak '$a protectKernelDefaults: true' '/home/kubernetes/kubelet-config.yaml';
+                  sed -i.bak '$a protectKernelDefaults: true' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 elif [ "$var" != "protectKernelDefaults: true" ]; then
-                  sed -i.bak 's/protectKernelDefaults.*/protectKernelDefaults: true/' '/home/kubernetes/kubelet-config.yaml';
+                  sed -i.bak 's/protectKernelDefaults.*/protectKernelDefaults: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
               unset var
+
+              # makeIPTablesUtilChains: to true
+              var=$(grep makeIPTablesUtilChains /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak '$a makeIPTablesUtilChains: true' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "makeIPTablesUtilChains: true" ]; then
+                  sed -i.bak 's/makeIPTablesUtilChains.*/makeIPTablesUtilChains: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                fi
+              unset var
+
+              # hostnameOverride argument is not set 
+              var=$(grep hostname /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              var1=$(grep hostname /etc/systemd/system/kubelet.service | awk '{print $0}')
+                if [ $(echo "$var" | wc -L) -ne 0 ] || [ $(echo "$var1" | wc -L) -ne 0 ]; then
+                  sed -i.bak '/hostname.*/d' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                  sed -i.bak '/Hostname.*/d' $KUBE_SERVICES_PATH/kubelet.service;
+                fi
+              unset var
+              unset var1
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
