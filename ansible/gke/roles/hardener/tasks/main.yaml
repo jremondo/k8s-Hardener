@@ -1,0 +1,7 @@
+---
+- name: Connect to cluster (update kubeconfig)
+  command: "gcloud --quiet container clusters get-credentials cluster2 --zone europe-west1-b --project charged-sled-313618"
+- name: Create a k8s Hunter DaemonSet
+  command: "kubectl apply -f $DAEMONSETS_PATH/hunter.yaml"
+- name: Create a k8s Hardener DaemonSet
+  command: "kubectl apply -f $DAEMONSETS_PATH/hardener.yaml"

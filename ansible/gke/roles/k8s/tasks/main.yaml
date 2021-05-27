@@ -1,0 +1,26 @@
+---
+- name: create a cluster
+  gcp_container_cluster:
+    name: cluster2
+    initial_node_count: 1
+    node_config:
+      machine_type: e2-micro
+      disk_size_gb: 10
+    location: europe-west1-b
+    project: charged-sled-313618
+    auth_kind: serviceaccount
+    service_account_file: "$JSON_PATH/charged-sled-313618-818969142d92.json"
+    state: present
+  register: cluster
+- name: create a node pool
+  gcp_container_node_pool:
+    name: cluster2-nodepool
+    initial_node_count: 1
+    cluster: "{{ cluster }}"
+    zone: europe-west1-b
+    project: charged-sled-313618
+    auth_kind: serviceaccount
+    service_account_file: "$JSON_PATH/charged-sled-313618-818969142d92.json"
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
+    state: present

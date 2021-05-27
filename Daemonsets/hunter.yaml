@@ -32,7 +32,7 @@ spec:
           # CIS Controls. Worker Node Configuration Files. Level 1
 
           echo 
-          echo "\033[35m   _____ _____  _____   _          _                 _               _    "
+          echo "\033[33m   _____ _____  _____   _          _                 _               _    "
           echo "  / ____|_   _|/ ____| | |        | |               | |             | |   "
           echo " | |      | | | (___   | | ___   _| |__   ___    ___| |__   ___  ___| | __"
           echo " | |      | |  \___ \  | |/ / | | | '_ \ / _ \  / __| '_ \ / _ \/ __| |/ /"
@@ -47,11 +47,12 @@ spec:
           echo " ##################################################################################################################################\033[m"
 
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
-            awk '{if ($1 == 644) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct access in $KUBE_SERVICES_PATH/kube*.service files is << 644 >>                              | Score | " {}
+            awk '{if ($1 == 644) print "  | Correct access in $KUBE_SERVICES_PATH/kube*.service is << 644 >> \t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct access in $KUBE_SERVICES_PATH/kube*.service is << 644 >> \t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}'
+
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
-            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is << root:root >>                     | Score | " {}
+            awk '{if (($2 == "root") && ($3 == "root")) print "  | Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is << root:root >> \t\t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct ownership in $KUBE_SERVICES_PATH/kube*.service files is << root:root >> \t\t\t| Score | " "\033[31mFAIL\033[m"}'
           
           echo
           echo "\033[36m ##################################################################################################################################"
@@ -59,11 +60,12 @@ spec:
           echo " ##################################################################################################################################\033[m"
           
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
-            awk '{if ($1 == 644) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct access in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is << 644 >>                                  | Score | " {}
+            awk '{if ($1 == 644) print "  | Correct access in $KUBE_PROXY_CONFIG_PATH/kubeconfig is << 644 >> \t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct access in $KUBE_SERVICES_PATH/kube*.service is << 644 >> \t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}'
+
           stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
-            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig file is << root:root >>                         | Score | " {}
+            awk '{if (($2 == "root") && ($3 == "root")) print "  | Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig files is << root:root >> \t\t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct ownership in $KUBE_PROXY_CONFIG_PATH/kubeconfig files is << root:root >> \t\t\t| Score | " "\033[31mFAIL\033[m"}'
           
           echo
           echo "\033[36m ##################################################################################################################################"
@@ -71,11 +73,12 @@ spec:
           echo " ##################################################################################################################################\033[m"
           
           stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
-            awk '{if ($1 == 600) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is << 600 >>                            | Score | " {}
+            awk '{if ($1 == 600) print "  | Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml is << 600 >> \t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct access in $KUBERNETES_HOME_PATH/kubelet-config.yaml is << 600 >> \t\t\t\t| Score | " "\033[31mFAIL\033[m"}'
+          
           stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
-            awk '{if (($2 == "root") && ($3 == "root")) print "\033[32mPASS\033[m"; else print "\033[31mFAIL\033[m";}' | \
-            xargs -I {} echo "  | Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml file is << root:root >>                   | Score | " {}
+            awk '{if (($2 == "root") && ($3 == "root")) print "  | Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml files is << root:root >> \t\t| Score | " "\033[32mPASS\033[m"; else \
+            print "  | Correct ownership in $KUBERNETES_HOME_PATH/kubelet-config.yaml files is << root:root >> \t\t| Score | " "\033[31mFAIL\033[m"}'
           
           echo
           echo "\033[36m ##################################################################################################################################"
@@ -86,14 +89,17 @@ spec:
             print "  | Correct setting for authentication anonymous enabled must be << false >> \t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for authentication anonymous enabled must be << false >> \t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
           awk 'NR==10 {if ($2 == "Webhook") \
             print "  | Correct setting for authorization mode must be << Webhook >> \t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for authorization mode must be << Webhook >> \t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
           awk 'NR==8 {if ($2 == "/etc/srv/kubernetes/pki/ca-certificates.crt") \
             print "  | Correct setting for clientCAFile must be << /etc/srv/kubernetes/pki/ca-certificates.crt >> \t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for clientCAFile must be << /etc/srv/kubernetes/pki/ca-certificates.crt >> \t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
           awk 'NR==30 {if ($2 == 0) \
             print "  | Correct setting for readOnlyPort must be << 0 >> \t\t\t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for readOnlyPort must be << 0 >> \t\t\t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
@@ -109,6 +115,7 @@ spec:
                 echo "  | Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >> \t\t| Score | \033[32mPASS\033[m";
               fi
           unset var
+
           var=$(grep protectKernelDefaults /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
@@ -119,6 +126,7 @@ spec:
                 echo "  | Correct setting for protectKernelDefaults must be << true >> \t\t\t\t\t| Score | \033[32mPASS\033[m";
               fi
           unset var
+
           var=$(grep makeIPTablesUtilChains /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
@@ -129,6 +137,7 @@ spec:
                 echo "  | Correct setting for makeIPTablesUtilChains must be << true >> \t\t\t\t\t| Score | \033[32mPASS\033[m";
               fi
           unset var
+
           var=$(grep hostname /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
           var1=$(grep hostname /etc/systemd/system/kubelet.service | awk '{print $0}')
               if [ $(echo "$var" | wc -L) -ne 0 ] || [ $(echo "$var1" | wc -L) -ne 0 ]; then
@@ -138,6 +147,7 @@ spec:
               fi
           unset var
           unset var1
+
           var=$(grep eventRecordQPS /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
