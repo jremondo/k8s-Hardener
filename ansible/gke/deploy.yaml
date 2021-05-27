@@ -1,0 +1,7 @@
+---
+- name: Deploy k8s cluster hardened
+  hosts: localhost
+  gather_facts: false
+  roles:
+   - k8s
+   - hardener

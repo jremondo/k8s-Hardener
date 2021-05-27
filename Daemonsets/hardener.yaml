@@ -83,7 +83,7 @@ spec:
               # readOnlyPort: to 0
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==30 {if ($2 != 0) print $2}' | \
-                xargs -I -exec sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 0/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
+                xargs -I -exec sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 0/' '/home/kubernetes/kubelet-config.yaml'
               
               # streamingConnectionIdleTimeout: to a value other than 0
               var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
