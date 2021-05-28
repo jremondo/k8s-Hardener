@@ -1,0 +1,16 @@
+
+# create a cluster
+
+cluster_name: cluster3
+initial_node_count: 2
+machine_type: e2-micro
+disk_size_gb: 10
+location: europe-west1-b
+project: charged-sled-313618
+auth_kind: serviceaccount
+service_account_file: path of service account credentials file
+
+# create a node pool
+
+node_pool_name: cluster3-nodepool
+pool_initial_node_count: 3
