@@ -1,0 +1,6 @@
+
+# connect to cluster
+
+cluster_name: cluster3
+location: europe-west1-b
+project_id: charged-sled-313618
