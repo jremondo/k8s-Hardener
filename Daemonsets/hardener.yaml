@@ -70,28 +70,49 @@ spec:
                 awk 'NR==4 {if ($2 == "true") print $2}' | \
                 xargs -I -exec sed -i.bak '4 s/enabled: true/enabled: false/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
               
-              # authorization: mode: to Webhook
-              cat /home/kubernetes/kubelet-config.yaml | \
-                awk 'NR==10 {if ($2 != "Webhook") print $2}' | \
-                xargs -I -exec sed -i.bak '10 s/mode.*/mode: Webhook/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
-              
               # authentication: x509: clientCAFile: to correct path
               cat /home/kubernetes/kubelet-config.yaml | \
                 awk 'NR==8 {if ($2 != "/etc/srv/kubernetes/pki/ca-certificates.crt") print $2}' | \
                 xargs -I -exec sed -i.bak '8 s/clientCAFile.*/clientCAFile: \/etc\/srv\/kubernetes\/pki\/ca-certificates.crt/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
+
+              # tlsCertFile: set to correct location
+              var=$(grep tlsCertFile /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak 's/clientCAFile.*/&\n    tlsCertFile: \/var\/lib\/kubelet\/pki\/kubelet-client.crt/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "tlsCertFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+                  sed -i.bak 's/tlsCertFile.*/tlsCertFile: \/var\/lib\/kubelet\/pki\/kubelet-client.crt/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                fi
+              unset var
+
+              # tlsPrivateKeyFile: set to correct location
+              var=$(grep tlsPrivateKeyFile /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak 's/tlsCertFile.*/&\n    tlsPrivateKeyFile: \/var\/lib\/kubelet\/pki\/kubelet-client.key/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+                  sed -i.bak 's/tlsPrivateKeyFile.*/tlsPrivateKeyFile: \/var\/lib\/kubelet\/pki\/kubelet-client.key/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                fi
+              unset var
+
+              # authorization: mode: to Webhook
+              cat /home/kubernetes/kubelet-config.yaml | \
+                awk 'NR==12 {if ($2 != "Webhook") print $2}' | \
+                xargs -I -exec sed -i.bak '12 s/mode.*/mode: Webhook/' '$KUBERNETES_HOME_PATH/kubelet-config.yaml'
+              
               
               # readOnlyPort: to 0
               cat /home/kubernetes/kubelet-config.yaml | \
-                awk 'NR==30 {if ($2 != 0) print $2}' | \
-                xargs -I -exec sed -i.bak '30 s/readOnlyPort.*/readOnlyPort: 0/' '/home/kubernetes/kubelet-config.yaml'
+                awk 'NR==32 {if ($2 != 0) print $2}' | \
+                xargs -I -exec sed -i.bak '32 s/readOnlyPort.*/readOnlyPort: 0/' '/home/kubernetes/kubelet-config.yaml'
               
               # streamingConnectionIdleTimeout: to a value other than 0
               var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
-                  sed -i.bak '$a streamingConnectionIdleTimeout: 1' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
-                elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
-                  sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 1/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                  sed -i.bak '$a streamingConnectionIdleTimeout: 5m' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "streamingConnectionIdleTimeout: 5m" ]; then
+                  sed -i.bak 's/streamingConnectionIdleTimeout.*/streamingConnectionIdleTimeout: 5m/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
               unset var
 
@@ -125,6 +146,8 @@ spec:
               unset var
               unset var1
 
+              
+
           
           # CIS Controls. Worker Node Profile Applicability: Level 2
 
@@ -135,7 +158,7 @@ spec:
               var=$(grep eventRecordQPS /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
-                  sed -i.bak '$a eventRecordQPS: 5' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                  sed -i.bak '$a eventRecordQPS: 5' $KUBERNETES_HOME_PATH/kubelet-config.yaml | systemctl restart kubelet.service;
                 elif [ "$var" != "eventRecordQPS: 5" ]; then
                   sed -i.bak 's/eventRecordQPS.*/eventRecordQPS: 5/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
