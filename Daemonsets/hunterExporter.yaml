@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hunter-exporter
+  labels:
+    purpose: execute-command
+spec:
+  selector:
+    matchLabels:
+      app: hunter-exporter
+  template:
+    metadata:
+      labels:
+        app: hunter-exporter
+    spec:
+      volumes:
+      - name: kube-services-path
+        hostPath:
+          path: /etc/systemd/system/
+      - name: kube-proxy-config-path
+        hostPath:
+          path: /var/lib/kube-proxy/
+      - name: kubernetes-home-path
+        hostPath:
+          path: /home/kubernetes/
+      containers:
+      - name: file-permission
+        image: debian
+        command: ["/bin/sh", "-c"]
+        args:
+        - |-
+          # CIS Controls. Worker Node Configuration Files. Level 1
+
+          
+          # Permissions in kube*.service files
+
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+            awk '{if ($1 == 644) print "Policy: Ensure that the access level in "$4" is 644,1"; else \
+            print "Policy: Ensure that the access level in "$4" is 644,0"}'
+
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_SERVICES_PATH/kube*.service | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "Policy: Ensure that the ownership in "$4" is root:root,1"; else \
+            print "Policy: Ensure that the ownership in "$4" is root:root,0"}'
+          
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
+            awk '{if ($1 == 644) print "Policy: Ensure that the access level in "$4" is 644,1"; else \
+            print "Policy: Ensure that the access level in "$4" is 644,0"}'
+
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBE_PROXY_CONFIG_PATH/kubeconfig | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "Policy: Ensure that the ownership in "$4" is root:root,1"; else \
+            print "Policy: Ensure that the ownership in "$4" is root:root,0"}'
+          
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
+            awk '{if ($1 == 600) print "Policy: Ensure that the access level in "$4" is 600,1"; else \
+            print "Policy: Ensure that the access level in "$4" is 600,0"}'
+          
+          stat --printf='%a\t%U\t%G\t%n\n' $KUBERNETES_HOME_PATH/kubelet-config.yaml | \
+            awk '{if (($2 == "root") && ($3 == "root")) print "Policy: Ensure that the ownership in "$4" is root:root,1"; else \
+            print "Policy: Ensure that the ownership in "$4" is root:root,0"}'
+          
+          
+          awk 'NR==4 {if ($2 == "false") \
+            print "Policy: Ensure that the in kubelet config the autentication anonymous is set to false,1"; else \
+            print "Policy: Ensure that the in kubelet config the autentication anonymous is set to false,0"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
+          awk 'NR==8 {if ($2 == "/etc/srv/kubernetes/pki/ca-certificates.crt") \
+            print "Policy: Ensure that the in kubelet config the ClientCAFile PATH be right,1"; else \
+            print "Policy: Ensure that the in kubelet config the ClientCAFile PATH be right,0"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
+          var=$(grep tlsCertFile /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,0";
+              elif [ "$var" != "tlsCertFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+                echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,1";
+              fi
+          unset var
+
+          var=$(grep tlsPrivateKeyFile /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,0";
+              elif [ "$var" != "tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+                echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,1";
+              fi
+          unset var
+
+          awk 'NR==12 {if ($2 == "Webhook") \
+            print "Policy: Ensure that the in kubelet config the authorization mode is set as Webhook,1"; else \
+            print "Policy: Ensure that the in kubelet config the authorization mode is set as Webhook,0"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+
+          awk 'NR==32 {if ($2 == 0) \
+            print "Policy: Ensure that the in kubelet config the ReadOnlyPort set to zero,1"; else \
+            print "Policy: Ensure that the in kubelet config the ReadOnlyPort set to zero,0"}' \
+            $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          
+          var=$(grep streamingConnectionIdleTimeout /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,0";
+              elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
+                echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,1";
+              fi
+          unset var
+
+          var=$(grep protectKernelDefaults /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the ProtectKernelDefaults set to true,0";
+              elif [ "$var" != "protectKernelDefaults: true" ]; then
+                echo "Policy: Ensure that the in kubelet config the ProtectKernelDefaults set to true,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the ProtectKernelDefaults set to true,1";
+              fi
+          unset var
+
+          var=$(grep makeIPTablesUtilChains /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the MakeIPTablesUtilChains set to true,0";
+              elif [ "$var" != "makeIPTablesUtilChains: true" ]; then
+                echo "Policy: Ensure that the in kubelet config the MakeIPTablesUtilChains set to true,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the MakeIPTablesUtilChains set to true,1";
+              fi
+          unset var
+
+          var=$(grep hostname /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+          var1=$(grep hostname /etc/systemd/system/kubelet.service | awk '{print $0}')
+              if [ $(echo "$var" | wc -L) -ne 0 ] || [ $(echo "$var1" | wc -L) -ne 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the HostnameOverride is not set,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the HostnameOverride is not set,1";
+              fi
+          unset var
+          unset var1
+
+          var=$(grep eventRecordQPS /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the EventRecordQPS set to 5,0";
+              elif [ "$var" != "eventRecordQPS: 5" ]; then
+                echo "Policy: Ensure that the in kubelet config the EventRecordQPS set to 5,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the EventRecordQPS set to 5,1";
+              fi
+          unset var
+        env:
+          - name: KUBE_SERVICES_PATH
+            value: "/etc/systemd/system"
+          - name: KUBE_PROXY_CONFIG_PATH
+            value: "/var/lib/kube-proxy"
+          - name: KUBERNETES_HOME_PATH
+            value: "/home/kubernetes"
+        volumeMounts:
+        - name: kube-services-path
+          mountPath: /etc/systemd/system/
+        - name: kube-proxy-config-path
+          mountPath: /var/lib/kube-proxy/
+        - name: kubernetes-home-path
+          mountPath: /home/kubernetes/
