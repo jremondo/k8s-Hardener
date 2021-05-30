@@ -1,0 +1,4 @@
+ansible_user: vagrant
+ansible_become: True
+mysql_root_user: root
+mysql_root_password: 123abc..
