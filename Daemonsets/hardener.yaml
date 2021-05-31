@@ -146,7 +146,15 @@ spec:
               unset var
               unset var1
 
-              
+              # rotateCertificates: to true
+              var=$(grep rotateCertificates /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak '$a rotateCertificates: true' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "rotateCertificates: true" ]; then
+                  sed -i.bak 's/rotateCertificates.*/rotateCertificates: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                fi
+              unset var
 
           
           # CIS Controls. Worker Node Profile Applicability: Level 2
@@ -158,11 +166,12 @@ spec:
               var=$(grep eventRecordQPS /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
-                  sed -i.bak '$a eventRecordQPS: 5' $KUBERNETES_HOME_PATH/kubelet-config.yaml | systemctl restart kubelet.service;
+                  sed -i.bak '$a eventRecordQPS: 5' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 elif [ "$var" != "eventRecordQPS: 5" ]; then
                   sed -i.bak 's/eventRecordQPS.*/eventRecordQPS: 5/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
               unset var
+
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"

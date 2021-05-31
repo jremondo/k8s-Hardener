@@ -73,7 +73,7 @@ spec:
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
                 echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,0";
-              elif [ "$var" != "tlsCertFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+              elif [ "$var" != "    tlsCertFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
                 echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,0";
               else
                 echo "Policy: Ensure that the in kubelet config the tlsCertFile PATH be right,1";
@@ -84,7 +84,7 @@ spec:
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
                 echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,0";
-              elif [ "$var" != "tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+              elif [ "$var" != "    tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.key" ]; then
                 echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,0";
               else
                 echo "Policy: Ensure that the in kubelet config the tlsPrivateKeyFile PATH be right,1";
@@ -143,6 +143,17 @@ spec:
               fi
           unset var
           unset var1
+
+          var=$(grep rotateCertificates /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the rotateCertificates set to true,0";
+              elif [ "$var" != "rotateCertificates: true" ]; then
+                echo "Policy: Ensure that the in kubelet config the rotateCertificates set to true,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the rotateCertificates set to true,1";
+              fi
+          unset var
 
           var=$(grep eventRecordQPS /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
             echo "$var" | \
