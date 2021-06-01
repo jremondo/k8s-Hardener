@@ -105,7 +105,7 @@ spec:
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
                 echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,0";
-              elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
+              elif [ "$var" != "streamingConnectionIdleTimeout: 5m" ]; then
                 echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,0";
               else
                 echo "Policy: Ensure that the in kubelet config the StreamingConnectionIdleTimeout set to a value other than zero,1";
