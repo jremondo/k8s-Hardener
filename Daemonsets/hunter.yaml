@@ -109,7 +109,7 @@ spec:
             echo "$var" | \
               if [ $(wc -L) -eq 0 ]; then
                 echo "  | Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >> \t\t| Score | \033[31mMISSING PARAMETER\033[m";
-              elif [ "$var" != "streamingConnectionIdleTimeout: 1" ]; then
+              elif [ "$var" != "streamingConnectionIdleTimeout: 5m" ]; then
                 echo "  | Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >> \t\t| Score | \033[31mFAIL\033[m";
               else
                 echo "  | Correct setting for streamingConnectionIdleTimeout must be value other than << 0 >> \t\t| Score | \033[32mPASS\033[m";
