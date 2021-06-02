@@ -165,6 +165,17 @@ spec:
                 echo "Policy: Ensure that the in kubelet config the EventRecordQPS set to 5,1";
               fi
           unset var
+
+          var=$(grep RotateKubeletServerCertificate /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+            echo "$var" | \
+              if [ $(wc -L) -eq 0 ]; then
+                echo "Policy: Ensure that the in kubelet config the RotateKubeletServerCertificate set to true,0";
+              elif [ "$var" != "  RotateKubeletServerCertificate: true" ]; then
+                echo "Policy: Ensure that the in kubelet config the RotateKubeletServerCertificate set to true,0";
+              else
+                echo "Policy: Ensure that the in kubelet config the RotateKubeletServerCertificate set to true,1";
+              fi
+          unset var
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
