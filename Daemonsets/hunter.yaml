@@ -90,7 +90,7 @@ spec:
             print "  | Correct setting for authentication anonymous enabled must be << false >> \t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
 
-          awk 'NR==10 {if ($2 == "Webhook") \
+          awk 'NR==12 {if ($2 == "Webhook") \
             print "  | Correct setting for authorization mode must be << Webhook >> \t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for authorization mode must be << Webhook >> \t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
@@ -100,7 +100,7 @@ spec:
             print "  | Correct setting for clientCAFile must be << /etc/srv/kubernetes/pki/ca-certificates.crt >> \t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
 
-          awk 'NR==30 {if ($2 == 0) \
+          awk 'NR==32 {if ($2 == 0) \
             print "  | Correct setting for readOnlyPort must be << 0 >> \t\t\t\t\t\t\t| Score | " "\033[32mPASS\033[m"; else \
             print "  | Correct setting for readOnlyPort must be << 0 >> \t\t\t\t\t\t\t| Score | " "\033[31mFAIL\033[m"}' \
             $KUBERNETES_HOME_PATH/kubelet-config.yaml
