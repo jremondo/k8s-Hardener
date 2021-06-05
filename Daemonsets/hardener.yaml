@@ -90,7 +90,7 @@ spec:
               echo "$var" | \
                 if [ $(wc -L) -eq 0 ]; then
                   sed -i.bak 's/tlsCertFile.*/&\n    tlsPrivateKeyFile: \/var\/lib\/kubelet\/pki\/kubelet-client.key/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
-                elif [ "$var" != "tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.crt" ]; then
+                elif [ "$var" != "tlsPrivateKeyFile: /var/lib/kubelet/pki/kubelet-client.key" ]; then
                   sed -i.bak 's/tlsPrivateKeyFile.*/tlsPrivateKeyFile: \/var\/lib\/kubelet\/pki\/kubelet-client.key/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
                 fi
               unset var
