@@ -172,6 +172,8 @@ spec:
                 fi
               unset var
 
+              sleep 240
+
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"

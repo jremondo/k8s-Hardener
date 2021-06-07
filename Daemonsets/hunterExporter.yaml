@@ -165,6 +165,8 @@ spec:
                 echo "Policy: Ensure that the in kubelet config the EventRecordQPS set to 5,1";
               fi
           unset var
+
+          sleep 240
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
