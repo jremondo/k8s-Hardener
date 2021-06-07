@@ -156,6 +156,16 @@ spec:
                 fi
               unset var
 
+              # RotateKubeletServerCertificate: to true
+              var=$(grep RotateKubeletServerCertificate /home/kubernetes/kubelet-config.yaml | awk '{print $0}')
+              echo "$var" | \
+                if [ $(wc -L) -eq 0 ]; then
+                  sed -i.bak 's/DynamicKubeletConfig.*/&\n  RotateKubeletServerCertificate: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                elif [ "$var" != "RotateKubeletServerCertificate: true" ]; then
+                  sed -i.bak 's/RotateKubeletServerCertificate.*/RotateKubeletServerCertificate: true/' $KUBERNETES_HOME_PATH/kubelet-config.yaml;
+                fi
+              unset var
+
           
           # CIS Controls. Worker Node Profile Applicability: Level 2
 
