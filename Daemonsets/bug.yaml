@@ -47,6 +47,7 @@ spec:
           sed -i.bak 's/tlsCertFile.*/tlsCertFile: \/tmp/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak 's/tlsPrivateKeyFile.*/tlsPrivateKeyFile: \/tmp/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
           sed -i.bak 's/rotateCertificates.*/rotateCertificates: false/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
+          sed -i.bak 's/RotateKubeletServerCertificate.*/RotateKubeletServerCertificate: false/' $KUBERNETES_HOME_PATH/kubelet-config.yaml
         env:
           - name: KUBE_SERVICES_PATH
             value: "/etc/systemd/system"
