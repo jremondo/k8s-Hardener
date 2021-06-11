@@ -6,7 +6,7 @@ initial_node_count: 2
 machine_type: e2-micro
 disk_size_gb: 10
 location: europe-west1-b
-project: charged-sled-313618
+project: 'your_project_id'
 auth_kind: serviceaccount
 service_account_file: path of service account credentials file
 
